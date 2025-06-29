@@ -1,13 +1,8 @@
-#!/bin/bash
-
-# Cek dependensi
-for cmd in figlet qrencode yt-dlp wget curl redis-cli; do
-  command -v $cmd >/dev/null 2>&1 || { echo "Perintah '$cmd' tidak ditemukan. Silakan install terlebih dahulu."; exit 1; }
-done
+#!/data/data/com.termux/files/usr/bin/bash
 
 # === KUNCI AKSES TERMUX & PEMBATAS USER ===
 ACCESS_CODE="Xiters!"
-ALLOWED_USERS=("citergr2" "u0_a317" "u0_a297")
+ALLOWED_USERS=("u0_a305" "citergr2" "u0_a317" "root")
 
 read -p "Masukkan kunci akses: " input_code
 if [[ "$input_code" != "$ACCESS_CODE" ]]; then
@@ -163,7 +158,6 @@ spam_otp() {
   done
 }
 
-
 # ========================
 # Downloader
 # ========================
@@ -205,9 +199,11 @@ downloader() {
       ;;
   esac
 }
-# QRIS Payment Function
+
+# QRIS Payment Function (tanpa pillow/qrencode)
 qris() {
   GREEN='\033[1;92m'
+  YELLOW='\033[1;93m'
   NC='\033[0m'
 
   clear
@@ -217,18 +213,25 @@ qris() {
   read -p "Nominal (Rp)     : " nominal
   read -p "Link Pembayaran  : " link
 
-  filename="qris_$produk.png"
+  safe_produk=$(echo "$produk" | tr ' ' '_' | tr -cd '[:alnum:]_')
 
-  # Tambahkan info ke dalam QR
-  full_url="$link?produk=$produk&nominal=$nominal"
+  if [[ "$link" == *\?* ]]; then
+    full_url="${link}&produk=${produk}&nominal=${nominal}"
+  else
+    full_url="${link}?produk=${produk}&nominal=${nominal}"
+  fi
 
-  # Generate QR
-  qrencode -o "$filename" "$full_url"
+  echo -e "${YELLOW}Menampilkan QRIS langsung di terminal...${NC}"
 
-  echo -e "${GREEN}QRIS berhasil dibuat: $filename${NC}"
+  python3 - <<EOF
+try:
+    import pyqrcode
+    qr = pyqrcode.create("$full_url")
+    print(qr.terminal(quiet_zone=1))
+except ImportError:
+    print("Modul 'pyqrcode' belum terinstall. Jalankan: pip install pyqrcode pypng")
+EOF
 }
-
-
 
 # ========================
 # Menu Utama
@@ -253,5 +256,5 @@ while true; do
   *) color red "Pilihan tidak valid!" ;;
 esac
     echo ""
-  read -p "Tekan ENTER untuk kembali ke menu..."  # tambahkan ini di akhir cek_nik_kk
+  read -p "Tekan ENTER untuk kembali ke menu..."
 done
