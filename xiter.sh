@@ -610,6 +610,36 @@ jwt_decoder() {
   echo -e "\n${CYAN}PAYLOAD:${NC}"
   echo "$payload"
 }
+# ========================
+# Auto Setup VPS Script Generator
+# ========================
+auto_setup_vps() {
+  clear
+  figlet "AUTO VPS"
+  echo ""
+  read -p "Masukkan nama skrip VPS: " nama_script
+  read -p "Masukkan URL file konfigurasi VPS (.sh): " url_config
+
+  if [[ -z "$nama_script" || -z "$url_config" ]]; then
+    color red "Nama skrip atau URL tidak boleh kosong."
+    return
+  fi
+
+  nama_file="${nama_script// /_}.sh"
+  wget -O "$nama_file" "$url_config"
+
+  if [[ -f "$nama_file" ]]; then
+    chmod +x "$nama_file"
+    color green "✓ Skrip '$nama_file' berhasil diunduh dan siap dijalankan!"
+    echo ""
+    read -p "Ingin langsung menjalankan skrip? (y/n): " jawab
+    if [[ "$jawab" == "y" ]]; then
+      ./"$nama_file"
+    fi
+  else
+    color red "✗ Gagal mengunduh skrip!"
+  fi
+}
 
 
 
@@ -637,6 +667,7 @@ while true; do
   echo -e "${CYAN}14.Download dari Mediafire / GDrive / Sub2Unlock${NC}"
   echo -e "${CYAN}15.JWT DECODER${NC}"
   echo -e "${CYAN}16.AMBIL JWT TOKEN${NC}"
+  echo -e "${CYAN}17.AUTO SETUP VPS${NC}"
   echo -e "${CYAN}0. KELUAR${NC}"
   echo -e "${RED}──────────────────────────────────────────────${NC}"
   read -p "Pilih menu: " pilihan
@@ -668,6 +699,7 @@ while true; do
       ;;
   15) jwt_decoder ;;
   16) ambil_jwt_token ;;
+  17) auto_setup_vps ;;
   0) color yellow "Keluar..."; exit 0 ;;
   *) color red "Pilihan tidak valid!" ;;
 esac
