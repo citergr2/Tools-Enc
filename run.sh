@@ -5,7 +5,7 @@ read -sp "Password: " pwd
 echo ""
 
 # Coba dekripsi ke file sementara
-tmpfile=$(mktemp /tmp/xiters.XXXXXX.sh)
+tmpfile="/data/data/com.termux/files/usr/tmp/xiters.sh"
 
 openssl enc -aes-256-cbc -d -in XitersToolsEnc.enc -pass pass:"$pwd" -out "$tmpfile" 2>/dev/null
 
